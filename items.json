@@ -1,6 +1,24 @@
 {
     "conveyor_belt" : { 
-        "game_texture": "",
+        "scene": "",
+        "game_texture": {
+            "tileset_index": 0,
+            "path": "res://assets/belts.png",
+            "region": {
+                "position": "0,0",
+                "size": "16,16"
+            }
+        },
+        "icon_texture": ""
+    },
+    "cable" : { 
+        "game_texture": {
+            "path": "res://assets/belts.png",
+            "region": {
+                "position": "0,16",
+                "size": "16,16"
+            }
+        },
         "icon_texture": ""
     }
 }
