@@ -1,0 +1,67 @@
+[gd_scene load_steps=6 format=2]
+
+[ext_resource path="res://scenes/scripts/item_controller.gd" type="Script" id=1]
+[ext_resource path="res://scenes/scripts/console.gd" type="Script" id=2]
+[ext_resource path="res://scenes/scripts/map_controller.gd" type="Script" id=3]
+[ext_resource path="res://assets/map.png" type="Texture" id=4]
+
+[sub_resource type="TileSet" id=1]
+0/name = "map.png 0"
+0/texture = ExtResource( 4 )
+0/tex_offset = Vector2( 0, 0 )
+0/modulate = Color( 1, 1, 1, 1 )
+0/region = Rect2( 0, 0, 16, 16 )
+0/tile_mode = 0
+0/occluder_offset = Vector2( 0, 0 )
+0/navigation_offset = Vector2( 0, 0 )
+0/shapes = [  ]
+0/z_index = 0
+1/name = "map.png 1"
+1/texture = ExtResource( 4 )
+1/tex_offset = Vector2( 0, 0 )
+1/modulate = Color( 1, 1, 1, 1 )
+1/region = Rect2( 16, 0, 16, 16 )
+1/tile_mode = 0
+1/occluder_offset = Vector2( 0, 0 )
+1/navigation_offset = Vector2( 0, 0 )
+1/shapes = [  ]
+1/z_index = 0
+
+[node name="game" type="Node2D"]
+
+[node name="item_controller" type="Node2D" parent="."]
+script = ExtResource( 1 )
+items_path = "res://items.json"
+
+[node name="ui" type="CanvasLayer" parent="item_controller"]
+
+[node name="console" type="CanvasLayer" parent="."]
+script = ExtResource( 2 )
+
+[node name="VSplitContainer" type="VSplitContainer" parent="console"]
+visible = false
+anchor_right = 1.0
+margin_bottom = 438.0
+
+[node name="LineEdit" type="LineEdit" parent="console/VSplitContainer"]
+margin_right = 1280.0
+margin_bottom = 24.0
+
+[node name="TextEdit" type="TextEdit" parent="console/VSplitContainer"]
+margin_top = 36.0
+margin_right = 1280.0
+margin_bottom = 438.0
+readonly = true
+
+[node name="map_controller" type="Node2D" parent="."]
+editor/display_folded = true
+script = ExtResource( 3 )
+
+[node name="tiles" type="TileMap" parent="map_controller"]
+tile_set = SubResource( 1 )
+cell_size = Vector2( 16, 16 )
+format = 1
+
+[node name="Camera2D" type="Camera2D" parent="map_controller"]
+current = true
+
