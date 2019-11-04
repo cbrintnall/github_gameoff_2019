@@ -1,0 +1,11 @@
+[gd_scene load_steps=2 format=2]
+
+[sub_resource type="Curve2D" id=1]
+_data = {
+"points": PoolVector2Array(  )
+}
+
+[node name="path" type="Path2D"]
+curve = SubResource( 1 )
+
+[node name="follower" type="PathFollow2D" parent="."]

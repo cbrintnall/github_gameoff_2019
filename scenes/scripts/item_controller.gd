@@ -1,15 +1,21 @@
 extends Node2D
 
 onready var item_map = get_node("items")
+onready var placed_items = get_node("placed_items")
 onready var console = get_node("../console")
 
 export (String) var items_path
 
 var items: Dictionary = {}
 var selected: String = "conveyor_belt"
+var current_rotation: int = 0
+var last_rotation: int = 0
 var selected_texture: int = -1
-var lastX = -1
-var lastY = -1
+
+var groups = []
+
+# arrow's texture in atlas
+var arrow_index = 6
 
 func _ready():
 	console.add_command("items", funcref(self, "print_items_to_console"))
@@ -22,15 +28,67 @@ func _process(delta):
 	var posX = floor(position.x / item_map.cell_size.x)
 	var posY = floor(position.y / item_map.cell_size.y)
 
-	if item_map.get_cell(posX, posY) != selected_texture:
+	if Input.is_action_just_pressed("rotate_item"):
+		rotate_item()
+
+	if Input.is_action_just_pressed("left_click"):
+		place_item_at(posX, posY, current_rotation)
+
+	if Input.is_action_just_pressed("right_click"):
+		remove_item_at(posX, posY)
+
+	if (item_map.get_cell(posX, posY) != selected_texture) || (current_rotation != last_rotation):
+		item_map.clear()
+
 		# Sets the current cell
-		item_map.set_cell(posX, posY, selected_texture)
+		place_hovered_item(posX, posY, current_rotation)
+		place_arrow(posX, posY, current_rotation)
 
-		# Clears the last cell
-		item_map.set_cell(lastX, lastY, -1)
+	last_rotation = current_rotation
 
-	lastX = posX
-	lastY = posY
+func add_point_to_groups(x: int, y: int):
+	# TODO: Make enums for tileset, 0 == Tile.CONVEYOR
+	if placed_items.get_cell(x+1, y) == 0:
+		pass
+
+	if placed_items.get_cell(x-1, y) == 0:
+		pass
+	
+	if placed_items.get_cell(x, y+1) == 0:
+		pass
+
+	if placed_items.get_cell(x, y-1) == 0:
+		pass
+
+func place_hovered_item(x: int, y: int, rotation: int):
+	item_map.set_cell(x, y, selected_texture, false, false, is_transposed(rotation))
+
+func place_arrow(x: int, y: int, rotation: int):
+	var rotated = !is_transposed(rotation)
+
+	match rotation:
+		0:
+			item_map.set_cell(x+1, y, arrow_index, true, false, rotated)
+		90:
+			item_map.set_cell(x, y-1, arrow_index, false, false, rotated)
+		180:
+			item_map.set_cell(x-1, y, arrow_index, false, false, rotated)
+		270:
+			item_map.set_cell(x, y+1, arrow_index, false, true, rotated)
+
+func is_transposed(rotation: int):
+	return rotation == 90 || rotation == 270
+
+func remove_item_at(x: int, y: int):
+	placed_items.set_cell(x, y, -1)
+
+func place_item_at(x: int, y: int, rotation: int):
+	placed_items.set_cell(x, y, selected_texture, false, false, is_transposed(rotation))
+	add_point_to_groups(x, y)
+
+func rotate_item():
+	current_rotation += 90
+	current_rotation %= 360
 
 func get_item_dict(path: String):
 	var file = File.new()

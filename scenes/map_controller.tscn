@@ -6,7 +6,7 @@
 [ext_resource path="res://scenes/scripts/map_controller.gd" type="Script" id=4]
 [ext_resource path="res://assets/map.png" type="Texture" id=5]
 
-[sub_resource type="TileSet" id=2]
+[sub_resource type="TileSet" id=1]
 0/name = "belts.png 0"
 0/texture = ExtResource( 2 )
 0/tex_offset = Vector2( 0, 0 )
@@ -67,8 +67,18 @@
 5/navigation_offset = Vector2( 0, 0 )
 5/shapes = [  ]
 5/z_index = 0
+6/name = "belts.png 6"
+6/texture = ExtResource( 2 )
+6/tex_offset = Vector2( 0, 0 )
+6/modulate = Color( 1, 1, 1, 1 )
+6/region = Rect2( 32, 0, 17, 16 )
+6/tile_mode = 0
+6/occluder_offset = Vector2( 0, 0 )
+6/navigation_offset = Vector2( 0, 0 )
+6/shapes = [  ]
+6/z_index = 0
 
-[sub_resource type="TileSet" id=1]
+[sub_resource type="TileSet" id=2]
 0/name = "map.png 0"
 0/texture = ExtResource( 5 )
 0/tex_offset = Vector2( 0, 0 )
@@ -93,6 +103,7 @@
 [node name="game" type="Node2D"]
 
 [node name="item_controller" type="Node2D" parent="."]
+editor/display_folded = true
 z_index = 1
 script = ExtResource( 1 )
 items_path = "res://items.json"
@@ -100,7 +111,14 @@ items_path = "res://items.json"
 [node name="ui" type="CanvasLayer" parent="item_controller"]
 
 [node name="items" type="TileMap" parent="item_controller"]
-tile_set = SubResource( 2 )
+z_index = 2
+tile_set = SubResource( 1 )
+cell_size = Vector2( 16, 16 )
+format = 1
+
+[node name="placed_items" type="TileMap" parent="item_controller"]
+z_index = 1
+tile_set = SubResource( 1 )
 cell_size = Vector2( 16, 16 )
 format = 1
 
@@ -124,12 +142,14 @@ margin_bottom = 438.0
 readonly = true
 
 [node name="map_controller" type="Node2D" parent="."]
+editor/display_folded = true
 script = ExtResource( 4 )
 
 [node name="tiles" type="TileMap" parent="map_controller"]
-tile_set = SubResource( 1 )
+tile_set = SubResource( 2 )
 cell_size = Vector2( 16, 16 )
 format = 1
 
 [node name="Camera2D" type="Camera2D" parent="map_controller"]
 current = true
+zoom = Vector2( 0.5, 0.5 )
