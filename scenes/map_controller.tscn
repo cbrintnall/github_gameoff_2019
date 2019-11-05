@@ -103,8 +103,7 @@
 [node name="game" type="Node2D"]
 
 [node name="item_controller" type="Node2D" parent="."]
-editor/display_folded = true
-z_index = 1
+z_index = 9
 script = ExtResource( 1 )
 items_path = "res://items.json"
 
