@@ -1,6 +1,6 @@
 {
     "conveyor_belt" : { 
-        "scene": "",
+        "scene": "res://scenes/belt.tscn",
         "game_texture": {
             "tileset_index": 0,
             "path": "res://assets/belts.png",
@@ -11,7 +11,8 @@
         },
         "icon_texture": ""
     },
-    "cable" : { 
+    "cable" : {
+        "scene": "",
         "game_texture": {
             "path": "res://assets/belts.png",
             "region": {
