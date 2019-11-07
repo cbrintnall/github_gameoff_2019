@@ -6,6 +6,7 @@
 "moveable",
 ]]
 script = ExtResource( 1 )
+item_name = "egg"
 
 [node name="item" type="Sprite" parent="."]
 

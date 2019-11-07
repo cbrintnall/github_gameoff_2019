@@ -6,7 +6,8 @@
 [sub_resource type="RectangleShape2D" id=1]
 extents = Vector2( 3.45491, 4.55373 )
 
-[node name="egg" instance=ExtResource( 1 )]
+[node name="bad_egg" instance=ExtResource( 1 )]
+item_name = "bad_egg"
 
 [node name="item" parent="." index="0"]
 texture = ExtResource( 2 )

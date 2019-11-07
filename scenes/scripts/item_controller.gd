@@ -6,6 +6,8 @@ onready var console = get_node("../console")
 
 export (String) var items_path
 
+var consumer = preload("res://scenes/consumer.tscn")
+
 var moving_items: Array = [preload("res://scenes/items/egg.tscn")]
 var items: Dictionary = {}
 var selected: String = "conveyor_belt"
@@ -43,10 +45,15 @@ func _process(delta):
 		place_item_at(posX, posY, current_rotation)
 
 	if Input.is_action_just_pressed("right_click"):
-		# remove_item_at(posX, posY)
-		var instance = moving_items[0].instance()
-		instance.position = position
-		add_child(instance)
+		if (Input.is_key_pressed(KEY_CONTROL)):
+			var instance = consumer.instance()
+			instance.position = position
+			add_child(instance)
+		else:				
+			# remove_item_at(posX, posY)
+			var instance = moving_items[0].instance()
+			instance.position = position
+			add_child(instance)
 
 	if (item_map.get_cell(posX, posY) != selected_texture) || (current_rotation != last_rotation):
 		item_map.clear()
