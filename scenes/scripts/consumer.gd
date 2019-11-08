@@ -7,19 +7,26 @@ onready var item = preload("res://scenes/scripts/item.gd")
 export var want: String = "egg"
 
 var distance_out: int = 0
-var requires: int = 5
+
+# TODO: If requires is -1, it will eat ALWAYS
+var requires: int = -1
 var has: int = 0
 
 func _ready():
-	connect("area_entered", self, "_on_area_entered")
+	connect("body_entered", self, "_on_area_entered")
 	texture.texture = load("res://scenes/items/" + want + ".tscn").instance().get_node("item").texture
 	
 func _on_area_entered(obj):
-	if obj is item && has < requires:
+	if obj is item && (has < requires || requires == -1):
 		has += 1
 		obj.queue_free()
 		
 func _physics_process(delta):
+	var out_of: String = str(requires)
+	
+	if requires == -1:
+		out_of = ""
+	
 	text.text = "%d/%d" % [has, requires]
 	
 func set_distance_out(distance_out: int) -> void:

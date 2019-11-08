@@ -1,4 +1,4 @@
-extends Area2D
+extends KinematicBody2D
 
 onready var shape: CollisionShape2D = $CollisionShape2D
 onready var sprite: Sprite = $item

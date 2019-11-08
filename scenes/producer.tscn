@@ -1,0 +1,53 @@
+[gd_scene load_steps=7 format=2]
+
+[ext_resource path="res://scenes/scripts/generator.gd" type="Script" id=1]
+[ext_resource path="res://scenes/items/egg.tscn" type="PackedScene" id=2]
+[ext_resource path="res://assets/consumer.png" type="Texture" id=3]
+
+[sub_resource type="Shader" id=1]
+code = "shader_type canvas_item;
+
+void fragment() {
+	float time =  (sin(TIME) * .5) + 1.0;
+	COLOR = vec4(-time, time, -time, 1.0);
+}"
+
+[sub_resource type="ShaderMaterial" id=2]
+shader = SubResource( 1 )
+
+[sub_resource type="ParticlesMaterial" id=3]
+emission_shape = 1
+emission_sphere_radius = 10.0
+flag_disable_z = true
+gravity = Vector3( 0, 0, 0 )
+angular_velocity = 0.0
+orbit_velocity = 1.0
+orbit_velocity_random = 1.0
+radial_accel = -57.2
+angle = 180.0
+angle_random = 1.0
+scale = 0.5
+anim_speed = 143.6
+
+[node name="generator" type="Node2D"]
+z_index = 5
+script = ExtResource( 1 )
+scene = ExtResource( 2 )
+
+[node name="Sprite" type="Sprite" parent="."]
+texture = ExtResource( 3 )
+region_enabled = true
+region_rect = Rect2( 16, 0, 16, 16 )
+
+[node name="spawn_point" type="Node2D" parent="."]
+editor/display_folded = true
+position = Vector2( 0, -16 )
+
+[node name="Particles2D" type="Particles2D" parent="spawn_point"]
+material = SubResource( 2 )
+amount = 30
+randomness = 1.0
+process_material = SubResource( 3 )
+
+[node name="Timer" type="Timer" parent="."]
+autostart = true

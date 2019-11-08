@@ -8,9 +8,14 @@
 
 config_version=4
 
-_global_script_classes=[  ]
+_global_script_classes=[ {
+"base": "TileMap",
+"class": "PlaceableTileMap",
+"language": "GDScript",
+"path": "res://scenes/scripts/placeable_tilemap.gd"
+} ]
 _global_script_class_icons={
-
+"PlaceableTileMap": ""
 }
 
 [application]

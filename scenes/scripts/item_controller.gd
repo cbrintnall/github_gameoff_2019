@@ -7,6 +7,7 @@ onready var console = get_node("../console")
 export (String) var items_path
 
 var consumer = preload("res://scenes/consumer.tscn")
+var producer = preload("res://scenes/producer.tscn")
 
 var moving_items: Array = [preload("res://scenes/items/egg.tscn")]
 var items: Dictionary = {}
@@ -35,32 +36,34 @@ func _process(delta):
 	update()
 
 	var position = get_global_mouse_position()
-	var posX = floor(position.x / item_map.cell_size.x)
-	var posY = floor(position.y / item_map.cell_size.y)
+	var pos = item_map.get_tile_coords(position)
 
 	if Input.is_action_just_pressed("rotate_item"):
 		rotate_item()
 
 	if Input.is_action_just_pressed("left_click"):
-		place_item_at(posX, posY, current_rotation)
+		place_item_at(pos.x, pos.y, current_rotation)
 
 	if Input.is_action_just_pressed("right_click"):
 		if (Input.is_key_pressed(KEY_CONTROL)):
+			
 			var instance = consumer.instance()
 			instance.position = position
+			placed_items.align_to_grid(instance)
 			add_child(instance)
-		else:				
-			# remove_item_at(posX, posY)
-			var instance = moving_items[0].instance()
+		
+		if (Input.is_key_pressed(KEY_SHIFT)):
+			var instance = producer.instance()
 			instance.position = position
+			placed_items.align_to_grid(instance)
 			add_child(instance)
 
-	if (item_map.get_cell(posX, posY) != selected_texture) || (current_rotation != last_rotation):
+	if (item_map.get_cell(pos.x, pos.y) != selected_texture) || (current_rotation != last_rotation):
 		item_map.clear()
 
 		# Sets the current cell
-		place_hovered_item(posX, posY, current_rotation)
-		place_arrow(posX, posY, current_rotation)
+		place_hovered_item(pos.x, pos.y, current_rotation)
+		place_arrow(pos.x, pos.y, current_rotation)
 
 	last_rotation = current_rotation
 
@@ -83,21 +86,13 @@ func place_arrow(x: int, y: int, rotation: int):
 func is_transposed(rotation: int):
 	return rotation == 90 || rotation == 270
 
-func remove_item_at(x: int, y: int):
-	placed_items.set_cell(x, y, -1)
-
 func place_item_at(x: int, y: int, rotation: int):
 	if items[selected].scene == null:
 		return
 
-	var position: Vector2 = Vector2(
-		(x * placed_items.cell_size.x) + placed_items.cell_size.x / 2, 
-		(y * placed_items.cell_size.y) + placed_items.cell_size.y / 2
-	)
-
 	var instance = items[selected].scene.instance()
-	instance.position = position
 	instance.rotation_degrees = current_rotation
+	placed_items.place_at_tile(x, y, instance)
 	add_child(instance)
 
 func rotate_item():
