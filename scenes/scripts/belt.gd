@@ -9,6 +9,8 @@ var direction = Vector2.ZERO
 
 func _ready():
 	self.direction = Vector2(cos(self.rotation), -sin(self.rotation))
+	
+	print(direction)
 
 	connect("body_entered", self, "_on_area_entered")
 	connect("body_exited", self, "_on_area_exited")
@@ -43,7 +45,7 @@ func move_to_center(object: Node2D) -> void:
 		object.move_and_collide(dirTo * speed)
 
 func move_along(object: Node2D) -> void:
-	object.position += (direction * speed)
+	object.move_item(direction, speed)
 			
 func get_center_point() -> Vector2:
 	return self.position + (collider.shape.get_extents()).floor()

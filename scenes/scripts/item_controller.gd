@@ -3,11 +3,11 @@ extends Node2D
 onready var item_map = get_node("items")
 onready var placed_items = get_node("placed_items")
 onready var console = get_node("../console")
+onready var place_checker = $Area2D
+onready var place_collider = $Area2D/CollisionShape2D
+onready var bad_place = $AudioStreamPlayer2D
 
 export (String) var items_path
-
-var consumer = preload("res://scenes/consumer.tscn")
-var producer = preload("res://scenes/producer.tscn")
 
 var moving_items: Array = [preload("res://scenes/items/egg.tscn")]
 var items: Dictionary = {}
@@ -15,6 +15,7 @@ var selected: String = "conveyor_belt"
 var current_rotation: int = 0
 var last_rotation: int = 0
 var selected_texture: int = -1
+var can_place = false
 
 var groups: Array = []
 var path_scene = preload("res://scenes/path.tscn")
@@ -31,33 +32,35 @@ func _ready():
 
 	# Set the hover layer to half opacity, so you can see it easier
 	item_map.modulate = Color(item_map.modulate.r, item_map.modulate.g, item_map.modulate.b, 0.5)
+	
+	# Set area checking collider to correct size
+	place_collider.shape.set_extents(Vector2(item_map.cell_size.x, item_map.cell_size.y) / 2)
 
 func _process(delta):
-	update()
-
+	# Set collision area for "placeable" checker
 	var position = get_global_mouse_position()
+	place_checker.position = position
+	item_map.align_to_grid(place_checker)
+	
+	check_if_can_place()
+	
+	if !can_place:
+		item_map.modulate = Color(0.5, 0.0, 0.0, 0.5)
+	else:
+		item_map.modulate = Color(0, 0.5, 0.0, 0.75)
+	
 	var pos = item_map.get_tile_coords(position)
 
 	if Input.is_action_just_pressed("rotate_item"):
 		rotate_item()
-
-	if Input.is_action_just_pressed("left_click"):
-		place_item_at(pos.x, pos.y, current_rotation)
-
-	if Input.is_action_just_pressed("right_click"):
-		if (Input.is_key_pressed(KEY_CONTROL)):
-			
-			var instance = consumer.instance()
-			instance.position = position
-			placed_items.align_to_grid(instance)
-			add_child(instance)
 		
-		if (Input.is_key_pressed(KEY_SHIFT)):
-			var instance = producer.instance()
-			instance.position = position
-			placed_items.align_to_grid(instance)
-			add_child(instance)
+	if Input.is_action_just_pressed("left_click"):
+		if can_place:
+			place_item_at(pos.x, pos.y, current_rotation)
+		else:
+			bad_place.play(0.0)
 
+	# Move the hovered item if necessary
 	if (item_map.get_cell(pos.x, pos.y) != selected_texture) || (current_rotation != last_rotation):
 		item_map.clear()
 
@@ -66,6 +69,16 @@ func _process(delta):
 		place_arrow(pos.x, pos.y, current_rotation)
 
 	last_rotation = current_rotation
+	
+func check_if_can_place():
+	var areas = self.place_checker.get_overlapping_areas()
+	
+	for area in areas:
+		if area.is_in_group("placeable_area"):
+			can_place = true
+			return
+			
+	can_place = false
 
 func place_hovered_item(x: int, y: int, rotation: int):
 	item_map.set_cell(x, y, selected_texture, false, false, is_transposed(rotation))
@@ -110,6 +123,9 @@ func get_item_dict(path: String):
 		return result.result
 	else:
 		print("Failed to parse item definition!")
+
+func get_scene_from_item(item: String):
+	return items[item].scene
 
 func get_texture_from_item(item: String, texture_type: String):
 	var item_def = self.get_item(item)

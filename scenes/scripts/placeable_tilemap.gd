@@ -13,6 +13,8 @@ func align_to_grid(object) -> void:
 	
 func place_at_tile(x: int, y: int, object: Node2D) -> void:
 	object.position = get_world_coords(Vector2(x, y)) + (self.cell_size / 2)
+	add_child(object)
 	
 func place_at_tilev(vec: Vector2, object: Node2D) -> void:
 	object.position = get_world_coords(vec) + (self.cell_size / 2)
+	add_child(object)

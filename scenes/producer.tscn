@@ -1,8 +1,9 @@
-[gd_scene load_steps=7 format=2]
+[gd_scene load_steps=9 format=2]
 
 [ext_resource path="res://scenes/scripts/generator.gd" type="Script" id=1]
 [ext_resource path="res://scenes/items/egg.tscn" type="PackedScene" id=2]
 [ext_resource path="res://assets/consumer.png" type="Texture" id=3]
+[ext_resource path="res://assets/audio/producer_spawn.wav" type="AudioStream" id=4]
 
 [sub_resource type="Shader" id=1]
 code = "shader_type canvas_item;
@@ -19,15 +20,21 @@ shader = SubResource( 1 )
 emission_shape = 1
 emission_sphere_radius = 10.0
 flag_disable_z = true
+spread = 50.0
 gravity = Vector3( 0, 0, 0 )
 angular_velocity = 0.0
-orbit_velocity = 1.0
-orbit_velocity_random = 1.0
+orbit_velocity = 0.0
+orbit_velocity_random = 0.0
 radial_accel = -57.2
 angle = 180.0
 angle_random = 1.0
 scale = 0.5
+scale_random = 0.5
+color = Color( 0.384314, 1, 0, 1 )
 anim_speed = 143.6
+
+[sub_resource type="RectangleShape2D" id=4]
+extents = Vector2( 8.01647, 8.0336 )
 
 [node name="generator" type="Node2D"]
 z_index = 5
@@ -40,14 +47,32 @@ region_enabled = true
 region_rect = Rect2( 16, 0, 16, 16 )
 
 [node name="spawn_point" type="Node2D" parent="."]
-editor/display_folded = true
 position = Vector2( 0, -16 )
 
 [node name="Particles2D" type="Particles2D" parent="spawn_point"]
 material = SubResource( 2 )
+z_index = 10
 amount = 30
 randomness = 1.0
 process_material = SubResource( 3 )
+
+[node name="Particles2D2" type="Particles2D" parent="spawn_point"]
+z_index = 500
+emitting = false
+amount = 30
+one_shot = true
+explosiveness = 0.5
+randomness = 1.0
+process_material = SubResource( 3 )
+
+[node name="AudioStreamPlayer2D" type="AudioStreamPlayer2D" parent="spawn_point"]
+stream = ExtResource( 4 )
+volume_db = -16.0
+
+[node name="Area2D" type="Area2D" parent="spawn_point"]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="spawn_point/Area2D"]
+shape = SubResource( 4 )
 
 [node name="Timer" type="Timer" parent="."]
 autostart = true

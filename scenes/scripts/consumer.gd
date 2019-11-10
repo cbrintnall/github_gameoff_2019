@@ -1,5 +1,6 @@
 extends Area2D
 
+onready var audio = $AudioStreamPlayer2D
 onready var text = $Sprite/Label
 onready var texture = $Sprite/TextureRect
 onready var item = preload("res://scenes/scripts/item.gd")
@@ -18,8 +19,15 @@ func _ready():
 	
 func _on_area_entered(obj):
 	if obj is item && (has < requires || requires == -1):
-		has += 1
-		obj.queue_free()
+		pickup_object(obj)
+		
+func pickup_object(obj) -> void:
+	has += 1
+	
+	if !audio.playing:
+		audio.play(0.0)
+	
+	obj.queue_free()
 		
 func _physics_process(delta):
 	var out_of: String = str(requires)
@@ -31,3 +39,7 @@ func _physics_process(delta):
 	
 func set_distance_out(distance_out: int) -> void:
 	self.distance_out = distance_out
+	
+func finished():
+	pass
+
