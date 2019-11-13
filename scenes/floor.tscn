@@ -1,0 +1,9 @@
+[gd_scene format=2]
+
+[node name="Node2D" type="Sprite"]
+region_enabled = true
+region_rect = Rect2( 0, 16, 16, 16 )
+
+[node name="Area2D" type="Area2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D"]

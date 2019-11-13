@@ -1,15 +1,19 @@
 extends Node2D
 
 signal map_changed
+signal generator_placed
 
 onready var map = $tiles
 onready var cam = $Camera2D
-onready var placeable_area: Area2D = $Area2D;
-onready var placeable_collider: CollisionShape2D = $Area2D/CollisionShape2D
 
+var place_floor = preload("res://scenes/placeable_floor.tscn")
+var no_place_floor = preload("res://scenes/unplaceable_floor.tscn")
 var consumer = preload("res://scenes/consumer.tscn")
 var producer = preload("res://scenes/producer.tscn")
 
+var noise = OpenSimplexNoise.new()
+
+var current_round: int = 1
 var current_height = 10
 var current_width = 10
 var rate = 3
@@ -18,6 +22,11 @@ var WALL = 0
 var FLOOR = 1
 
 func _ready():
+	noise.seed = 1234567
+	noise.octaves = 4
+	noise.period = 1.0
+	noise.persistence = 0.8
+
 	expand_room(0)
 	
 func _process(delta):
@@ -30,7 +39,17 @@ func _process(delta):
 func place_floors():
 	for i in range(current_height):
 		for j in range(current_width):
-			map.set_cell(i, j, FLOOR)
+			var instance = null
+			var rng = RandomNumberGenerator.new()
+			rng.randomize()
+			noise.seed = rng.randi_range(0, 1000000000)
+			
+			if noise.get_noise_2d(i, j) < 0.1:
+				instance = place_floor.instance()
+			else:
+				instance = no_place_floor.instance()
+			
+			map.place_at_tile(i, j, instance)
 	
 func place_walls():
 	var walls = [-1, current_height, current_width]
@@ -52,6 +71,8 @@ func get_center_of_map() -> Vector2:
 	);
 
 func create_current_size():
+	current_round += 1
+
 	map.clear()
 
 	place_floors()
@@ -88,20 +109,16 @@ func rand_wall_coords() -> Vector2:
 	return final_vector
 
 func should_spawn_consumer():
-	return true
+	return current_round % 3 == 0
 	
 func should_spawn_generator():
-	return true
+	return current_round % 3 == 0
 	
 func get_map_size() -> Vector2:
 	return Vector2(self.current_width * map.cell_size.x, self.current_height * map.cell_size.y)
 	
 func rotate_inward(object: Node2D) -> void:
 	var position: Vector2 = map.get_tile_coords(object.position)
-	
-func set_placeable_area():
-	placeable_area.position = self.get_center_of_map()
-	placeable_collider.shape.set_extents(self.get_map_size() / 2)
 
 func spawn_generator():
 	var coords: Vector2 = rand_wall_coords().floor()
@@ -116,8 +133,12 @@ func spawn_generator():
 		
 	if coords.x == 0:
 		instance.rotation_degrees = 90
-	
+		
 	map.place_at_tilev(coords, instance)
+	var destroy_coords = map.get_tile_coords(instance.position + instance.spawn_point.position)
+	map.place_at_tilev(destroy_coords, place_floor.instance())
+	
+	emit_signal("generator_placed", instance)
 	
 func spawn_consumer():
 	var coords: Vector2 = rand_coords().floor()
@@ -136,7 +157,5 @@ func expand_room(by):
 		
 	if should_spawn_generator():
 		spawn_generator()
-	
-	set_placeable_area()
 	
 	emit_signal("map_changed", self, current_width, current_height)

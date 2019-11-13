@@ -9,8 +9,6 @@ var direction = Vector2.ZERO
 
 func _ready():
 	self.direction = Vector2(cos(self.rotation), -sin(self.rotation))
-	
-	print(direction)
 
 	connect("body_entered", self, "_on_area_entered")
 	connect("body_exited", self, "_on_area_exited")
@@ -25,10 +23,11 @@ func _on_area_exited(o):
 func _on_area_entered(obj) -> void:
 	if can_claim_ownership(obj):
 		objects.push_front(obj)
+		obj.set_meta("owner", self.name)
 
 func _physics_process(delta):
 	for child in objects:
-		if child.is_in_group("moveable"):
+		if child.is_in_group("moveable") && child.get_meta("owner") == self.name:
 			self.move_along(child)
 
 func move_to_center(object: Node2D) -> void:
@@ -44,7 +43,8 @@ func move_to_center(object: Node2D) -> void:
 	if object.position != center:
 		object.move_and_collide(dirTo * speed)
 
-func move_along(object: Node2D) -> void:
+func move_along(object: Node2D) -> void:	
+	object.rotation_degrees = 0
 	object.move_item(direction, speed)
 			
 func get_center_point() -> Vector2:

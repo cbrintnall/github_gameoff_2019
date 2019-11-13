@@ -2,7 +2,6 @@ extends Area2D
 
 onready var audio = $AudioStreamPlayer2D
 onready var text = $Sprite/Label
-onready var texture = $Sprite/TextureRect
 onready var item = preload("res://scenes/scripts/item.gd")
 
 export var want: String = "egg"
@@ -15,7 +14,7 @@ var has: int = 0
 
 func _ready():
 	connect("body_entered", self, "_on_area_entered")
-	texture.texture = load("res://scenes/items/" + want + ".tscn").instance().get_node("item").texture
+	#texture.texture = load("res://scenes/items/" + want + ".tscn").instance().get_node("item").texture
 	
 func _on_area_entered(obj):
 	if obj is item && (has < requires || requires == -1):

@@ -1,0 +1,18 @@
+[gd_scene load_steps=4 format=2]
+
+[ext_resource path="res://scenes/floor.tscn" type="PackedScene" id=1]
+[ext_resource path="res://assets/map.png" type="Texture" id=2]
+
+[sub_resource type="RectangleShape2D" id=1]
+extents = Vector2( 7.75755, 7.64733 )
+
+[node name="Node2D" instance=ExtResource( 1 )]
+texture = ExtResource( 2 )
+region_rect = Rect2( 16, 0, 16, 16 )
+
+[node name="Area2D" parent="." index="0" groups=[
+"placeable_area",
+]]
+
+[node name="CollisionShape2D" parent="Area2D" index="0"]
+shape = SubResource( 1 )

@@ -4,10 +4,12 @@
 [ext_resource path="res://assets/belts.png" type="Texture" id=2]
 
 [sub_resource type="RectangleShape2D" id=1]
-extents = Vector2( 8.00992, 5.03411 )
+extents = Vector2( 7.98913, 6.99384 )
 
 [node name="belt" type="Area2D" groups=[
+"removeable",
 "conveyor",
+"no_place",
 ]]
 script = ExtResource( 1 )
 

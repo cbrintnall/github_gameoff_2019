@@ -1,5 +1,6 @@
 extends Node2D
 
+onready var map_controller = get_node("../map_controller")
 onready var item_map = get_node("items")
 onready var placed_items = get_node("placed_items")
 onready var console = get_node("../console")
@@ -16,6 +17,8 @@ var current_rotation: int = 0
 var last_rotation: int = 0
 var selected_texture: int = -1
 var can_place = false
+
+var coins = 0
 
 var groups: Array = []
 var path_scene = preload("res://scenes/path.tscn")
@@ -35,6 +38,8 @@ func _ready():
 	
 	# Set area checking collider to correct size
 	place_collider.shape.set_extents(Vector2(item_map.cell_size.x, item_map.cell_size.y) / 2)
+	
+	map_controller.connect("generator_placed", self, "_on_generator_placed")
 
 func _process(delta):
 	# Set collision area for "placeable" checker
@@ -54,11 +59,15 @@ func _process(delta):
 	if Input.is_action_just_pressed("rotate_item"):
 		rotate_item()
 		
-	if Input.is_action_just_pressed("left_click"):
+	if Input.is_action_pressed("left_click"):
 		if can_place:
 			place_item_at(pos.x, pos.y, current_rotation)
 		else:
-			bad_place.play(0.0)
+			if !bad_place.playing:
+				bad_place.play(0.0)
+			
+	if Input.is_action_just_pressed("right_click"):
+		remove_item(pos.x, pos.y)
 
 	# Move the hovered item if necessary
 	if (item_map.get_cell(pos.x, pos.y) != selected_texture) || (current_rotation != last_rotation):
@@ -69,16 +78,40 @@ func _process(delta):
 		place_arrow(pos.x, pos.y, current_rotation)
 
 	last_rotation = current_rotation
-	
-func check_if_can_place():
+
+func remove_item(x: int, y: int):
 	var areas = self.place_checker.get_overlapping_areas()
+	var bodies = self.place_checker.get_overlapping_bodies()
 	
 	for area in areas:
+		if area.is_in_group("removeable"):
+			area.queue_free()
+			
+	for body in bodies:
+		if body.is_in_group("removeable"):
+			body.queue_free()
+
+func check_if_can_place():
+	var areas = self.place_checker.get_overlapping_areas()
+	var bodies = self.place_checker.get_overlapping_bodies()
+	
+	can_place = false
+	
+	for area in areas:
+		if area.is_in_group("no_place"):
+			can_place = false
+			break
+
 		if area.is_in_group("placeable_area"):
 			can_place = true
-			return
 			
-	can_place = false
+	for body in bodies:
+		if body.is_in_group("no_place"):
+			can_place = false
+			break
+			
+		if body.is_in_group("placeable_area"):
+			can_place = true
 
 func place_hovered_item(x: int, y: int, rotation: int):
 	item_map.set_cell(x, y, selected_texture, false, false, is_transposed(rotation))
